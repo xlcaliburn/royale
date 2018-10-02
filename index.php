@@ -26,105 +26,89 @@
       curl_close($ch);
       return $data;
   }
-  $test = curl_get_contents("https://api.royaleapi.com/clan/8GYYR/warlog");
-  $arr = json_decode($test);
 
-  $clanWins = array();
-  $clanAttacks = array();
+  $warlog = json_decode(curl_get_contents("https://api.royaleapi.com/clan/8GYYR/warlog"));
+
   $clanGraph = array();
+  $clan = (object) array(
+    "wins"=>array(),
+    "attacks"=>array(),
+    "missed"=>array(),
+    "aggregated"=>(object) array(
+      "vlow"=>0,
+      "low"=>0,
+      "med"=>0,
+      "high"=>0,
+      "vhigh"=>0
+    )
+  );
 
-  foreach($arr as $item) {
+  foreach($warlog as $item) {
    foreach($item->participants as $participant) {
-     if (isset($clanWins[$participant->name])) {
-       $clanWins[$participant->name] += $participant->wins;
-       $clanAttacks[$participant->name] += 1;
+     if (isset($clan->attacks[$participant->name])) {
+       $clan->wins[$participant->name] += $participant->wins;
+       $clan->attacks[$participant->name] += $participant->battlesPlayed;
      }
      else {
-       $clanAttacks[$participant->name] = 1;
-       $clanWins[$participant->name] = $participant->wins;
+       $clan->wins[$participant->name] = 1;
+       $clan->attacks[$participant->name] = $participant->battlesPlayed;
      }
    }
   }
-  arsort($clanWins);
 
-  echo "<h4>Total Participants in the past 10 wars: ".count($clanAttacks)."</h4>";
+  echo "<h4>Total Participants in the past 10 wars: ".count($clan->attacks)."</h4>";
   echo "<h5>War Wins Overview</h5>";
   echo      '<div>
           <canvas id="chart" style="height:40vh"></canvas>
       </div>';
 
+  echo "<table class='table'>";
   echo "
-
-
-						<table class='table'>";
-    echo "
-
-
-							<thead>
-								<tr>
-									<th>Name</th>
-									<th>Wins</th>
-									<th>Total Attacks</th>
-									<th>Win Rate</th>
-								</tr>
-							</thead>";
-
-
-$vlow=0;
-$low=0;
-$med=0;
-$high=0;
-$vhigh= 0;
-  foreach($clanWins as $key=>$value){
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Wins</th>
+								<th>Total Attacks</th>
+								<th>Win Rate</th>
+							</tr>
+						</thead>";
+var_dump($clan->aggregated->vlow);
+array_multisort($clan->wins, SORT_DESC, $clan->attacks);
+  foreach($clan->wins as $key=>$value){
     if ($value <= 2) {
-      $vlow++;
+      $clan->aggregated->vlow++;
     }
     else if ($value <=4) {
-      $low++;
+      $clan->aggregated->low++;
     }
     else if ($value <= 6) {
-      $med++;
+      $clan->aggregated->med++;
     }
     else if ($value <=8) {
-      $high++;
+      $clan->aggregated->high++;
     }
     else {
-      $vhigh++;
+      $clan->aggregated->vhigh++;
     }
 
      echo "
-
-
 							<tr>
 								<td>$key</td>
 								<td>$value</td>
-								<td>$clanAttacks[$key]</td>
-								<td>".round(($value/$clanAttacks[$key]*100),0)."%</td>
+								<td>".$clan->attacks[$key]."</td>
+								<td>".round(($value/$clan->attacks[$key]*100),0)."%</td>
 							</tr>";
   }
   echo "
 
-
 						</table>";
-
-
-
-                foreach($clanWins as $key=>$value){
-
-              }
-
 ?>
-
-
 
     </div>
 
-
     <script>
 
-    var data = <?php echo $test; ?>;
-    var wins = <?php echo json_encode($clanWins); ?>;
-    var total = <?php echo json_encode($clanAttacks); ?>;
+
 
     var ctx = document.getElementById("chart").getContext('2d');
     var myChart = new Chart(ctx, {
@@ -132,7 +116,8 @@ $vhigh= 0;
         data: {
             labels: ["0-2", "3-4", "5-6", "7-8", "9-10"],
             datasets: [{
-                data: [<?php echo $vlow.",".$low.",".$med.",".$high.",".$vhigh; ?>],
+                data: [<?php echo $clan->aggregated->vlow.",".$clan->aggregated->low.",".$clan->aggregated->med.",".$clan->aggregated->high.",".$clan->aggregated->vhigh; ?>],
+                label: 'War Wins',
                 backgroundColor: [
                     'rgba(255, 40, 0, 0.8)',
                     'rgba(255, 127, 0, 0.8)',
