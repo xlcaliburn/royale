@@ -1,0 +1,15 @@
+.vhigh {
+  background-color: rgba(0, 212, 0 , 0.2);
+}
+.high {
+  background-color: rgba(206, 255, 0, 0.2);
+}
+.med {
+  background-color: rgba(255, 240, 0, 0.2);
+}
+.low {
+  background-color: rgba(255, 127, 0, 0.2);
+}
+.vlow {
+  background-color: rgba(255, 40, 0, 0.2);
+}
