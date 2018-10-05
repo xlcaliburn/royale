@@ -1,5 +1,6 @@
 <?php
   require('connect.php');
+  require('member.php');
 
   function curl_get_contents($url, $token)
   {
@@ -34,6 +35,14 @@
   $result = $conn->query($sql);
   $latest = $result->fetch_assoc()["Latest"];
 
+  $sql = "SELECT playerTag, playerName, SUM(battlesPlayed) as 'lifetimeBattles', SUM(wins) AS 'lifetimeWins' FROM warlog GROUP BY playerTag";
+  $result = $conn->query($sql);
+  $members = (object)[];
+  while($row = $result->fetch_assoc()) {
+    $name = $row["playerTag"];
+    $members->$name = new Member($row["playerTag"], $row["playerName"], $row["lifetimeWins"], $row["lifetimeBattles"]);
+  }
+
   foreach($warlog as $war) {
    foreach($war->participants as $participant) {
      if ($latest < $war->createdDate) {
@@ -46,13 +55,14 @@
        $result = $conn->query($sql);
      }
 
-     if (isset($clan->attacks[$participant->name])) {
-       $clan->wins[$participant->name] += $participant->wins;
-       $clan->attacks[$participant->name] += $participant->battlesPlayed;
+     if (isset($clan->attacks[$participant->tag])) {
+
+       $clan->wins[$participant->tag] += $participant->wins;
+       $clan->attacks[$participant->tag] += $participant->battlesPlayed;
      }
      else {
-       $clan->wins[$participant->name] = 1;
-       $clan->attacks[$participant->name] = $participant->battlesPlayed;
+       $clan->wins[$participant->tag] = $participant->wins;
+       $clan->attacks[$participant->tag] = $participant->battlesPlayed;
      }
 
    }

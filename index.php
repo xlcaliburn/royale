@@ -22,8 +22,6 @@
 
 <body>
     <div class="container">
-
-      curl_setopt($ch, CURLOPT_HEADER, 0);
       <div class="row">
         <div class="col-md">
           <h1>Toronto - Clash Royale War Stats</h1>
@@ -48,7 +46,6 @@
 								<th>Total Attacks</th>
 								<th>Win Rate</th>
                 <th>Lifetime Win Rate</th>
-                <th>Streak</th>
 							</tr>
 						</thead>";
 
@@ -73,7 +70,9 @@
 
      echo "
               <tr>
-								<td>$key</td>
+								<td>";
+echo($members->{$key}->playerName);
+                echo "</td>
 								<td>$value</td>
 								<td>".$clan->attacks[$key]."</td>";
 
@@ -88,6 +87,10 @@
       echo "<td class='vhigh'>";
     }
 			echo $winrate."%</td>
+      <td>";
+echo($members->{$key}->lifetimeWins.":".$members->{$key}->lifetimeBattles);
+      echo "</td>
+
 							</tr>";
   }
   echo "
