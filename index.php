@@ -71,12 +71,19 @@
      echo "
               <tr>
 								<td>";
+                echo ($members->{$key}->playerTag);
+                echo " - ";
 echo($members->{$key}->playerName);
                 echo "</td>
 								<td>$value</td>
 								<td>".$clan->attacks[$key]."</td>";
 
-    $winrate = round(($value/$clan->attacks[$key]*100),0);
+    if ($clan->attacks[$key] > 0 ) {
+      $winrate = round(($value/$clan->attacks[$key]*100),0);
+    }
+    else {
+      $winrate = 0;
+    }
     if ($winrate < 50) {
       echo "<td class='vlow'>";
     }
@@ -88,7 +95,7 @@ echo($members->{$key}->playerName);
     }
 			echo $winrate."%</td>
       <td>";
-echo($members->{$key}->lifetimeWins.":".$members->{$key}->lifetimeBattles);
+echo ( round(100*$members->{$key}->lifetimeWins/$members->{$key}->lifetimeBattles,1)."% (".$members->{$key}->lifetimeWins."/".$members->{$key}->lifetimeBattles.")");
       echo "</td>
 
 							</tr>";

@@ -17,7 +17,7 @@
       return $data;
   }
 
-  $warlog = json_decode(curl_get_contents("https://api.royaleapi.com/clan/8GYYR/warlog", $token));
+  $warlog = json_decode(curl_get_contents("https://api.royaleapi.com/clan/PCULPL2Q/warlog", $token));
 
   $clan = (object) array(
     "wins"=>array(),
@@ -46,10 +46,11 @@
   foreach($warlog as $war) {
    foreach($war->participants as $participant) {
      if ($latest < $war->createdDate) {
+
        $sql = "INSERT INTO warlog (createdDate, playerTag, playerName, battlesPlayed, wins) VALUES (".
          $war->createdDate.",'".
          $participant->tag."','".
-         $participant->name."',".
+        str_replace("'", "", $participant->name)  ."',".
          $participant->battlesPlayed.",".
          $participant->wins.")";
        $result = $conn->query($sql);
