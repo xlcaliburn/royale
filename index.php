@@ -8,8 +8,19 @@
 
 </style>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
 </head>
 
 <!-- As a link -->
@@ -46,8 +57,16 @@
 								<th>Total Attacks</th>
 								<th>Win Rate</th>
                 <th>Lifetime Win Rate</th>
+                <th>Lifetime Wins</th>
+                <th>Lifetime Attacks</th>
+                <th>Misses</th>
 							</tr>
 						</thead>";
+
+
+
+
+
 
   array_multisort($clan->wins, SORT_DESC, $clan->attacks);
 
@@ -71,39 +90,53 @@
      echo "
               <tr>
 								<td>";
-                echo ($members->{$key}->playerTag);
-                echo " - ";
-echo($members->{$key}->playerName);
+                echo($members->{$key}->playerName);
                 echo "</td>
 								<td>$value</td>
 								<td>".$clan->attacks[$key]."</td>";
 
-    if ($clan->attacks[$key] > 0 ) {
-      $winrate = round(($value/$clan->attacks[$key]*100),0);
-    }
-    else {
-      $winrate = 0;
-    }
-    if ($winrate < 50) {
-      echo "<td class='vlow'>";
-    }
-    elseif ($winrate < 75) {
-      echo "<td class='med'>";
-    }
-    else {
-      echo "<td class='vhigh'>";
-    }
-			echo $winrate."%</td>
+                    if ($clan->attacks[$key] > 0 ) {
+                      $winrate = round(($value/$clan->attacks[$key]*100),0);
+                    }
+                    else {
+                      $winrate = 0;
+                    }
+                    if ($winrate <= 20) {
+                      echo "<td class='vlow'>";
+                    }
+                    else if ($winrate <= 40) {
+                      echo "<td class='low'>";
+                    }
+                    elseif ($winrate <= 60) {
+                      echo "<td class='med'>";
+                    }
+                    elseif ($winrate <= 80) {
+                      echo "<td class='high'>";
+                    }
+                    else {
+                      echo "<td class='vhigh'>";
+                    }
+                			echo $winrate."%</td>
       <td>";
-echo ( round(100*$members->{$key}->lifetimeWins/$members->{$key}->lifetimeBattles,1)."% (".$members->{$key}->lifetimeWins."/".$members->{$key}->lifetimeBattles.")");
-      echo "</td>
+      $lifetimeWinrate = $members->{$key}->lifetimeBattles ? round(100*$members->{$key}->lifetimeWins/$members->{$key}->lifetimeBattles,1) : 0;
 
-							</tr>";
+      echo $lifetimeWinrate < $winrate ? '<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>' : '<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>';
+      echo " ".$lifetimeWinrate ."%";
+      echo "</td><td>";
+      echo $members->{$key}->lifetimeWins;
+      echo "</td><td>";
+      echo $members->{$key}->lifetimeBattles;
+      echo "</td><td>";
+      echo $members->{$key}->misses;
+      echo "</tr>";
   }
   echo "
 
 						</table>";
+
+
 ?>
+
 
     </div>
 
@@ -143,6 +176,7 @@ echo ( round(100*$members->{$key}->lifetimeWins/$members->{$key}->lifetimeBattle
               }
           }
       });
+
     </script>
 
 </body>
